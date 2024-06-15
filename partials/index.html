@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Chatbot Example</title>
+</head>
+<body>
+
+<!-- Chatbot Widget Container -->
+<div id="chatbot-container">
+    <div id="chatbox"></div>
+    <input type="text" id="user-input" placeholder="Type your message..." />
+    <button onclick="sendMessage()">Send</button>
+</div>
+
+<!-- JavaScript Code -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    // Replace with your Dialogflow API credentials
+    const projectId = 'your-project-id';
+    const sessionId = 'your-session-id';
+    const languageCode = 'en-US';
+
+    // Function to send a message to Dialogflow
+    function sendMessage() {
+        const userMessage = document.getElementById('user-input').value;
+        document.getElementById('user-input').value = '';
+
+        // Append user's message to the chatbox
+        appendMessage('User', userMessage);
+
+        // Send user message to Dialogflow
+        fetch('/sendMessage', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                projectId: projectId,
+                sessionId: sessionId,
+                languageCode: languageCode,
+                query: userMessage
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            const botMessage = data.fulfillmentText;
+            // Append bot's response to the chatbox
+            appendMessage('Bot', botMessage);
+        })
+        .catch(error => {
+            console.error('Error sending message:', error);
+        });
+    }
+
+    // Function to append a message to the chatbox
+    function appendMessage(sender, message) {
+        const chatbox = document.getElementById('chatbox');
+        const messageElement = document.createElement('div');
+        messageElement.innerHTML = `<strong>${sender}:</strong> ${message}`;
+        chatbox.appendChild(messageElement);
+    }
+</script>
+</body>
+</html>
